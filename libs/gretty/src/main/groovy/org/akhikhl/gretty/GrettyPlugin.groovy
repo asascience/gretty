@@ -49,7 +49,6 @@ class GrettyPlugin implements Plugin<Project> {
       }
       grettyProductRuntime
       grettyProvidedCompile
-      project.configurations.findByName('compile')?.extendsFrom grettyProvidedCompile
     }
 
     ServletContainerConfig.getConfigs().each { configName, config ->
