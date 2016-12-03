@@ -16,6 +16,7 @@ dependencies {
 
 processResources {
   def props = [
+    grettyGroup: project.group,
     grettyVersion: project.version,
     jetty7Version: project.jetty7_version,
     jetty7ServletApi: project.jetty7_servlet_api,
