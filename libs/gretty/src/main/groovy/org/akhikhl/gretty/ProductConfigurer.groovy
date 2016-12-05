@@ -130,6 +130,8 @@ class ProductConfigurer {
       inputs.files project.configurations.grettyProductRuntime
 
       inputs.files project.configurations.grettyProvidedCompile
+    
+      inputs.files project.configurations.grettyOverlays
 
       inputs.files {
         resolveConfig()

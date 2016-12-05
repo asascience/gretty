@@ -87,14 +87,11 @@ final class ProjectUtils {
       urls.addAll proj.sourceSets.main.output.files.collect { it.toURI().toURL() }
     def dependencyConfig = proj.configurations.findByName(dependencyConfigName)
     if(dependencyConfig) {
-      def files = dependencyConfig.fileCollection { !(it instanceof ProjectDependency) }
+      def files = dependencyConfig.fileCollection { true }
       def grettyProvidedCompileConfig = proj.configurations.findByName('grettyProvidedCompile')
       if(grettyProvidedCompileConfig)
         files = files - grettyProvidedCompileConfig
       urls.addAll(files.collect { it.toURI().toURL() })
-      dependencyConfig.allDependencies.withType(ProjectDependency).each { dep ->
-        addProjectClassPathWithDependencies(urls, dep.getDependencyProject(), dependencyConfigName)
-      }
     }
   }
 

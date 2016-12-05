@@ -49,6 +49,7 @@ class GrettyPlugin implements Plugin<Project> {
       }
       grettyProductRuntime
       grettyProvidedCompile
+      grettyOverlays
     }
 
     ServletContainerConfig.getConfigs().each { configName, config ->
@@ -119,7 +120,7 @@ class GrettyPlugin implements Plugin<Project> {
     }
 
     for(String overlay in project.gretty.overlays)
-      project.dependencies.add 'grettyProvidedCompile', project.project(overlay)
+      project.dependencies.add 'grettyOverlays', project.project(overlay)
 
     project.farms.farmsMap.each { fname, farm ->
       farm.webAppRefs.each { wref, options ->
