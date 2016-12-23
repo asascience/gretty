@@ -293,9 +293,7 @@ class GrettyPlugin implements Plugin<Project> {
       if(project.gretty.overlays) {
 
         project.ext.finalArchivePath = archiveTask.archivePath
-
-        archiveTask.archiveName = 'partial.' + (project.tasks.findByName('war') ? 'war' : 'jar')
-
+        
         // 'explodeWebApps' task is only activated by 'overlayArchive' task
         project.task('explodeWebApps', group: 'gretty') {
           description = 'Explodes this web-app and all overlays (if any) to ${buildDir}/explodedWebapp'
