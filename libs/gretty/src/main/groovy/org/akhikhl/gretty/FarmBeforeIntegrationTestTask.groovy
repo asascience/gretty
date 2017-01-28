@@ -108,6 +108,11 @@ class FarmBeforeIntegrationTestTask extends FarmStartTask {
                 if (thisTask.didWork)
                   passSystemPropertiesToIntegrationTask(proj, t)
               }
+              t.doLast {
+                if (thisTask.didWork)
+                  // See note in AppBeforeIntegrationTest.integrationTestTask().
+                  t.systemProperties.keySet().removeAll { it.startsWith("gretty.") }
+              }
           } else if (GradleUtils.instanceOf(t, 'org.akhikhl.gretty.AppBeforeIntegrationTestTask') && t.integrationTestTask == thisTask.integrationTestTask)
             t.mustRunAfter thisTask // need this to be able to disable AppBeforeIntegrationTestTask in doFirst
         }

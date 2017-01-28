@@ -8,11 +8,9 @@
  */
 package org.akhikhl.gretty
 
-import org.gradle.api.tasks.TaskAction
 import org.gradle.process.JavaForkOptions
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
-
 /**
  *
  * @author akhikhl
@@ -59,17 +57,29 @@ class AppBeforeIntegrationTestTask extends AppStartTask {
     }
     integrationTestTask_ = integrationTestTask
     def thisTask = this
-    project.tasks.all { t ->
-      if(t.name == thisTask.integrationTestTask) {
-        t.dependsOn thisTask
+    project.tasks.all { task ->
+      if(task.name == thisTask.integrationTestTask) {
+        task.dependsOn thisTask
         thisTask.dependsOn { project.tasks.prepareInplaceWebApp }
         thisTask.dependsOn { project.tasks.testClasses }
-        if(t.name != 'test' && project.tasks.findByName('test'))
+        if(task.name != 'test' && project.tasks.findByName('test'))
           thisTask.mustRunAfter { project.tasks.test }
-        if(GradleUtils.instanceOf(t, 'org.gradle.process.JavaForkOptions')) {
-          t.doFirst {
+        if(GradleUtils.instanceOf(task, 'org.gradle.process.JavaForkOptions')) {
+          task.doFirst {
             if(thisTask.didWork)
-              passSystemPropertiesToIntegrationTask(t)
+              passSystemPropertiesToIntegrationTask(task)
+          }
+          task.doLast {
+            if (thisTask.didWork)
+              // UP-TO-DATE checking is done (obviously) immediately before execution.
+              // The snapshot of task input, however, is not take until AFTER execution. What this means is that
+              // if a task's input changes during execution (e.g. properties are added to it), that task can never be
+              // considered UP-TO-DATE. Source: https://discuss.gradle.org/t/when-are-input-output-snapshots-taken
+              //
+              // That's precisely what we did above in task.doFirst{}. We had to: serverStartInfo isn't populated
+              // until the execution phase. So, in order for the UP-TO-DATE machinery to work properly, we must remove
+              // the properties we added above, so that task's properties before and after execution will be the same.
+              task.systemProperties.keySet().removeAll { it.startsWith("gretty.") }
           }
         }
       }
@@ -77,6 +87,8 @@ class AppBeforeIntegrationTestTask extends AppStartTask {
     integrationTestTaskAssigned = true
   }
 
+  // serverStartInfo gets populated in this task's action() method.
+  // Therefore, we can't call this method until this task has run.
   protected void passSystemPropertiesToIntegrationTask(JavaForkOptions task) {
 
     def host = serverStartInfo.host
