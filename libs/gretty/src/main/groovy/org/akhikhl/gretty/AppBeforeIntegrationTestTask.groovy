@@ -8,6 +8,8 @@
  */
 package org.akhikhl.gretty
 
+import org.gradle.api.internal.changedetection.TaskArtifactState
+import org.gradle.api.internal.changedetection.TaskArtifactStateRepository
 import org.gradle.process.JavaForkOptions
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
@@ -81,6 +83,21 @@ class AppBeforeIntegrationTestTask extends AppStartTask {
               // the properties we added above, so that task's properties before and after execution will be the same.
               task.systemProperties.keySet().removeAll { it.startsWith("gretty.") }
           }
+        }
+    
+        // We're trying hard to only execute appBeforeIntegrationTest if integrationTestTask will execute.
+        // We won't execute if integrationTestTask is disabled--that's simple.
+        // We also won't execute if integrationTestTask is considered UP-TO-DATE. That's much harder to determine,
+        // and we had to dig into internal Gradle APIs to find that info. Expect this to break in the future.
+        // There are still other cases where test execution could be skipped that we don't or can't check
+        // (e.g. one of its onlyIf()s returns false), but those situations are rare.
+        thisTask.onlyIf {
+          if (!task.enabled) {
+            return false;
+          }
+    
+          TaskArtifactState state = task.services.get(TaskArtifactStateRepository).getStateFor(task)
+          return !state.isUpToDate([])
         }
       }
     }

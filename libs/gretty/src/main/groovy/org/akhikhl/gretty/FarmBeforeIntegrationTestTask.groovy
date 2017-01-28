@@ -8,6 +8,8 @@
  */
 package org.akhikhl.gretty
 import org.gradle.api.Project
+import org.gradle.api.internal.changedetection.TaskArtifactState
+import org.gradle.api.internal.changedetection.TaskArtifactStateRepository
 import org.gradle.process.JavaForkOptions
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
@@ -96,25 +98,40 @@ class FarmBeforeIntegrationTestTask extends FarmStartTask {
     integrationTestTask_ = integrationTestTask
     def thisTask = this
     project.rootProject.allprojects.each { proj ->
-      proj.tasks.all { t ->
-        if(getWebAppProjects().contains(t.project)) {
-          if (t.name == thisTask.integrationTestTask) {
-            t.mustRunAfter thisTask
+      proj.tasks.all { task ->
+        if(getWebAppProjects().contains(task.project)) {
+          if (task.name == thisTask.integrationTestTask) {
+            task.mustRunAfter thisTask
             thisTask.mustRunAfter proj.tasks.testClasses
-            if (t.name != 'test' && project.tasks.findByName('test'))
+            if (task.name != 'test' && project.tasks.findByName('test'))
               thisTask.mustRunAfter project.tasks.test
-            if (GradleUtils.instanceOf(t, 'org.gradle.process.JavaForkOptions'))
-              t.doFirst {
-                if (thisTask.didWork)
-                  passSystemPropertiesToIntegrationTask(proj, t)
+            
+            if (GradleUtils.instanceOf(task, 'org.gradle.process.JavaForkOptions')) {
+              task.doFirst {
+                if (thisTask.didWork) {
+                  passSystemPropertiesToIntegrationTask(proj, task)
+                }
               }
-              t.doLast {
-                if (thisTask.didWork)
-                  // See note in AppBeforeIntegrationTest.integrationTestTask().
-                  t.systemProperties.keySet().removeAll { it.startsWith("gretty.") }
+              task.doLast {
+                // See first note in AppBeforeIntegrationTestTask.integrationTestTask().
+                if (thisTask.didWork) {
+                  task.systemProperties.keySet().removeAll { it.startsWith("gretty.") }
+                }
               }
-          } else if (GradleUtils.instanceOf(t, 'org.akhikhl.gretty.AppBeforeIntegrationTestTask') && t.integrationTestTask == thisTask.integrationTestTask)
-            t.mustRunAfter thisTask // need this to be able to disable AppBeforeIntegrationTestTask in doFirst
+            }
+  
+            // See second note in AppBeforeIntegrationTestTask.integrationTestTask().
+            thisTask.onlyIf {
+              if (!task.enabled) {
+                return false;
+              }
+    
+              TaskArtifactState state = task.services.get(TaskArtifactStateRepository).getStateFor(task)
+              return !state.isUpToDate([])
+            }
+          } else if (GradleUtils.instanceOf(task, 'org.akhikhl.gretty.AppBeforeIntegrationTestTask') &&
+                     task.integrationTestTask == thisTask.integrationTestTask)
+            task.mustRunAfter thisTask // need this to be able to disable AppBeforeIntegrationTestTask in doFirst
         }
       }
     }

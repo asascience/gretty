@@ -55,6 +55,12 @@ class AppAfterIntegrationTestTask extends AppStopTask {
       if(t.name == thisTask.integrationTestTask)
         t.finalizedBy thisTask
     }
+    
+    // This task only needs to run if appBeforeIntegrationTest did. Otherwise, we'll get the error:
+    //   Execution failed for task 'appAfterIntegrationTest'.
+    //   > Gretty seems to be not running, cannot send command 'stop' to it.
+    onlyIf { project.tasks.appBeforeIntegrationTest.didWork }
+    
     integrationTestTaskAssigned = true
   }
 }

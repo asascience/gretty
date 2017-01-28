@@ -72,6 +72,10 @@ class FarmAfterIntegrationTestTask extends FarmStopTask {
           thisTask.mustRunAfter t
       }
     }
+  
+    // See note in AppAfterIntegrationTestTask.integrationTestTask().
+    onlyIf { project.tasks.farmBeforeIntegrationTest.didWork }
+    
     integrationTestTaskAssigned = true
   }
 
