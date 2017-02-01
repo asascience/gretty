@@ -27,12 +27,25 @@ abstract class StartBaseTask extends DefaultTask {
   Integer debugPort
   Boolean debugSuspend
 
-  private JacocoHelper jacocoHelper
+  private JacocoHelper jacocoHelper  // May be null.
 
   protected final List<Closure> prepareServerConfigClosures = []
   protected final List<Closure> prepareWebAppConfigClosures = []
 
   Map serverStartInfo
+  
+  public StartBaseTask() {
+    // This task starts a server; it should never be considered UP-TO-DATE.
+    outputs.upToDateWhen { false }
+  
+    // Is the Jacoco plugin applied to the project?
+    // Gretty tasks are created after project evaluation, so we don't have to worry about the Jacoco plugin being
+    // applied after this task. The plugin will either have been applied before or it never will be.
+    if(project.extensions.findByName('jacoco')) {
+      jacocoHelper = new JacocoHelper(this)
+      jacocoHelper.jacoco.enabled = getDefaultJacocoEnabled()
+    }
+  }
 
   @TaskAction
   void action() {
@@ -93,7 +106,7 @@ abstract class StartBaseTask extends DefaultTask {
 
     CertificateGenerator.maybeGenerate(project, sconfig)
 
-    if(getJacoco()?.enabled) {
+    if(getJacoco()?.enabled) {  // Will only be true for AppBeforeIntegrationTestTask and FarmBeforeIntegrationTestTask.
       String jacocoConfigJvmArg = getJacoco().getAsJvmArg()
       if(jacocoConfigJvmArg)
         sconfig.jvmArgs jacocoConfigJvmArg
@@ -126,12 +139,14 @@ abstract class StartBaseTask extends DefaultTask {
   protected boolean getIntegrationTest() {
     false
   }
-
+  
+  /**
+   * Returns the JacocoTaskExtension associated with this task, or {@code null} if the Jacoco plugin hasn't been
+   * applied to the project.
+   *
+   * @return  the JacocoTaskExtension associated with this task, or {@code null}.
+   */
   JacocoTaskExtension getJacoco() {
-    if(jacocoHelper == null && project.extensions.findByName('jacoco')) {
-      jacocoHelper = new JacocoHelper(this)
-      jacocoHelper.jacoco.enabled = getDefaultJacocoEnabled()
-    }
     jacocoHelper?.jacoco
   }
 
