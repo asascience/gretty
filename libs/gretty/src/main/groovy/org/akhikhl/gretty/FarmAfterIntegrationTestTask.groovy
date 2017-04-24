@@ -9,6 +9,7 @@
 package org.akhikhl.gretty
 
 import org.gradle.api.Project
+import org.gradle.api.Task
 import org.gradle.api.tasks.TaskAction
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
@@ -66,15 +67,22 @@ class FarmAfterIntegrationTestTask extends FarmStopTask {
     def thisTask = this
     getWebAppProjects().each { proj ->
       proj.tasks.all { t ->
-        if(t.name == thisTask.integrationTestTask)
+        if(t.name == thisTask.integrationTestTask) {
           thisTask.mustRunAfter t
-        else if(GradleUtils.instanceOf(t, 'org.akhikhl.gretty.AppAfterIntegrationTestTask') && t.integrationTestTask == thisTask.integrationTestTask)
+  
+          Closure instanceOfFarmBeforeIntegTest = { GradleUtils.instanceOf(it, FarmBeforeIntegrationTestTask.name) }
+          Set<Task> farmBeforeIntegTasks = t.dependsOn.findAll(instanceOfFarmBeforeIntegTest)
+  
+          // We only need to run this task if one of the associated FarmBeforeIntegrationTestTasks did work.
+          onlyIf {
+            farmBeforeIntegTasks.any { it.didWork }
+          }
+        } else if(GradleUtils.instanceOf(t, 'org.akhikhl.gretty.AppAfterIntegrationTestTask') &&
+                  t.integrationTestTask == thisTask.integrationTestTask) {
           thisTask.mustRunAfter t
+        }
       }
     }
-  
-    // See note in AppAfterIntegrationTestTask.integrationTestTask().
-    onlyIf { project.tasks.farmBeforeIntegrationTest.didWork }
     
     integrationTestTaskAssigned = true
   }

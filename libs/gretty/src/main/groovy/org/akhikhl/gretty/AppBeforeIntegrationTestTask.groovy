@@ -74,7 +74,7 @@ class AppBeforeIntegrationTestTask extends AppStartTask {
           task.doLast {
             if (thisTask.didWork)
               // UP-TO-DATE checking is done (obviously) immediately before execution.
-              // The snapshot of task input, however, is not take until AFTER execution. What this means is that
+              // The snapshot of task input, however, is not taken until AFTER execution. What this means is that
               // if a task's input changes during execution (e.g. properties are added to it), that task can never be
               // considered UP-TO-DATE. Source: https://discuss.gradle.org/t/when-are-input-output-snapshots-taken
               //
