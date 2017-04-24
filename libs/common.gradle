@@ -103,9 +103,14 @@ install.repositories.mavenInstaller.pom*.whenConfigured { pom ->
 project.tasks.build.finalizedBy project.tasks.install
 rootProject.tasks.buildExamples.dependsOn project.tasks.install
 
-artifactoryPublish {
-  publications 'mavenJava'
-}
+// Causes failure of "./gradlew tasks" with:
+//   Task with path 'generatePomFileForMavenJavaPublication' not found in project '<some-task>'.
+//   I tried to fix it but couldn't. Commenting it out because I don't publish to
+//   https://oss.jfrog.org/artifactory/oss-snapshot-local/ anyway. Instead, I use 'bintrayUpload' to publsh to
+//   https://dl.bintray.com/cwardgar/maven/.
+//artifactoryPublish {
+//  publications 'mavenJava'
+//}
 
 bintray {
   user = project.bintrayUser
