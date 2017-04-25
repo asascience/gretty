@@ -74,7 +74,7 @@ class FarmAfterIntegrationTestTask extends FarmStopTask {
           Set<Task> farmBeforeIntegTasks = t.dependsOn.findAll(instanceOfFarmBeforeIntegTest)
   
           // We only need to run this task if one of the associated FarmBeforeIntegrationTestTasks did work.
-          onlyIf {
+          thisTask.onlyIf {
             farmBeforeIntegTasks.any { it.didWork }
           }
         } else if(GradleUtils.instanceOf(t, 'org.akhikhl.gretty.AppAfterIntegrationTestTask') &&

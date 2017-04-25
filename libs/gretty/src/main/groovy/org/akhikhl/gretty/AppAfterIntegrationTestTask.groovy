@@ -62,7 +62,7 @@ class AppAfterIntegrationTestTask extends AppStopTask {
         Set<Task> appBeforeIntegTasks = t.dependsOn.findAll(instanceOfAppBeforeIntegTest)
         
         // We only need to run this task if one of the associated AppBeforeIntegrationTestTasks did work.
-        onlyIf {
+        thisTask.onlyIf {
           appBeforeIntegTasks.any { it.didWork }
         }
       }
