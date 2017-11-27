@@ -39,6 +39,7 @@ class WebAppConfig {
 
   Set<String> beforeClassPath
   Set<String> classPath
+  String webInfIncludeJarPattern
 
   String projectPath
   Boolean inplace
@@ -46,6 +47,11 @@ class WebAppConfig {
    * Specifies mode for inplace feature: "hard" for directly serving src/main/webapp folder and "soft" for preparing build/inplaceWebapp first
    */
   String inplaceMode
+
+  /*
+   * Specifies a custom location for the web.xml file
+   */
+  String webXml
 
   Boolean springBoot
   String springBootMainClass

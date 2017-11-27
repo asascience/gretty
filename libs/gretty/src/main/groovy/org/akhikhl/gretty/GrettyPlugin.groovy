@@ -73,7 +73,6 @@ class GrettyPlugin implements Plugin<Project> {
     def providedCompile = project.configurations.findByName('providedCompile')
     if(providedCompile)
       providedCompile.extendsFrom project.configurations.grettyProvidedCompile
-    SpringBootResolutionStrategy.apply(project)
   }
 
   private void addDependencies(Project project) {
@@ -758,21 +757,32 @@ class GrettyPlugin implements Plugin<Project> {
 
     project.ext {
       grettyVersion = Externalized.getString('grettyVersion')
-      jetty7Version = Externalized.getString('jetty7Version')
-      jetty7ServletApi = Externalized.getString('jetty7ServletApi')
-      jetty7ServletApiVersion = Externalized.getString('jetty7ServletApiVersion')
-      jetty8Version = Externalized.getString('jetty8Version')
-      jetty8ServletApi = Externalized.getString('jetty8ServletApi')
-      jetty8ServletApiVersion = Externalized.getString('jetty8ServletApiVersion')
-      jetty9Version = Externalized.getString('jetty9Version')
-      jetty9ServletApi = Externalized.getString('jetty9ServletApi')
-      jetty9ServletApiVersion = Externalized.getString('jetty9ServletApiVersion')
-      tomcat7Version = Externalized.getString('tomcat7Version')
-      tomcat7ServletApi = Externalized.getString('tomcat7ServletApi')
-      tomcat7ServletApiVersion = Externalized.getString('tomcat7ServletApiVersion')
-      tomcat8Version = Externalized.getString('tomcat8Version')
-      tomcat8ServletApi = Externalized.getString('tomcat8ServletApi')
-      tomcat8ServletApiVersion = Externalized.getString('tomcat8ServletApiVersion')
+      if(!has('jetty7Version'))
+        jetty7Version = Externalized.getString('jetty7Version')
+      if(!has('jetty7ServletApiVersion'))
+        jetty7ServletApiVersion = Externalized.getString('jetty7ServletApiVersion')
+      if(!has('jetty8Version'))
+        jetty8Version = Externalized.getString('jetty8Version')
+      if(!has('jetty8ServletApiVersion'))
+        jetty8ServletApiVersion = Externalized.getString('jetty8ServletApiVersion')
+      if(!has('jetty9Version'))
+        jetty9Version = Externalized.getString('jetty9Version')
+      if(!has('jetty93Version'))
+        jetty93Version = Externalized.getString('jetty93Version')
+      if(!has('jetty94Version'))
+        jetty94Version = Externalized.getString('jetty94Version')
+      if(!has('jetty9ServletApiVersion'))
+        jetty9ServletApiVersion = Externalized.getString('jetty9ServletApiVersion')
+      if(!has('tomcat7Version'))
+        tomcat7Version = Externalized.getString('tomcat7Version')
+      if(!has('tomcat7ServletApiVersion'))
+        tomcat7ServletApiVersion = Externalized.getString('tomcat7ServletApiVersion')
+      if(!has('tomcat8Version'))
+        tomcat8Version = Externalized.getString('tomcat8Version')
+      if(!has('tomcat8ServletApiVersion'))
+        tomcat8ServletApiVersion = Externalized.getString('tomcat8ServletApiVersion')
+      if(!has('asmVersion'))
+        asmVersion = Externalized.getString('asmVersion')
     }
 
     addExtensions(project)
@@ -781,15 +791,14 @@ class GrettyPlugin implements Plugin<Project> {
     if(!project.rootProject.hasProperty('gretty_')) {
       Project rootProject = project.rootProject
       rootProject.ext.gretty_ = [:]
-      rootProject.ext.gretty_.projects = []
-      rootProject.allprojects { proj ->
-        afterEvaluate {
+      rootProject.ext.gretty_.evalProjectCount = rootProject.allprojects.sum 0, { it.state.executed ? 0 : 1 }
+      for(def p in rootProject.allprojects)
+        p.afterEvaluate { proj ->
           afterProjectEvaluate(proj)
-          rootProject.ext.gretty_.projects.add proj
-          if(rootProject.ext.gretty_.projects.size() == rootProject.allprojects.size())
+          rootProject.ext.gretty_.evalProjectCount = rootProject.ext.gretty_.evalProjectCount - 1
+          if(rootProject.ext.gretty_.evalProjectCount == 0)
             afterAllProjectsEvaluate(rootProject)
         }
-      }
     }
   } // apply
 }

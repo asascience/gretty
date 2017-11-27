@@ -87,6 +87,9 @@ class JettyConfigurerImpl implements JettyConfigurer {
       if(!httpConn.port)
         httpConn.port = params.httpPort ?: ServerDefaults.defaultHttpPort
 
+      if(httpConn.port == PortUtils.RANDOM_FREE_PORT)
+        httpConn.port = PortUtils.findFreePort()
+
       if(params.httpIdleTimeout)
         httpConn.maxIdleTime = params.httpIdleTimeout
 
@@ -200,6 +203,7 @@ class JettyConfigurerImpl implements JettyConfigurer {
     JettyWebAppContext context = new JettyWebAppContext()
     context.setWebInfLib(webappClassPath.findAll { it.endsWith('.jar') && !isServletApi(it) }.collect { new File(it) })
     context.setExtraClasspath(webappClassPath.collect { it.endsWith('.jar') ? it : (it.endsWith('/') ? it : it + '/') }.findAll { !isServletApi(it) }.join(';'))
+    if (webappParams.webXml != null) context.setDescriptor(webappParams.webXml);
     FilteringClassLoader classLoader = new FilteringClassLoader(context)
     classLoader.addServerClass('ch.qos.logback.')
     classLoader.addServerClass('org.slf4j.')

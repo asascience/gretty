@@ -8,17 +8,31 @@
  */
 package org.akhikhl.gretty
 
-/**
- *
- * @author akhikhl
- */
 class FarmConfig {
 
   @Delegate
-  protected ServerConfig serverConfig = new ServerConfig()
+  protected final ServerConfig serverConfig
 
   // key is project path or war path, value is options
-  protected Map webAppRefs_ = [:]
+  protected final Map webAppRefs_ = [:]
+
+  // list of projects or project paths
+  protected final List integrationTestProjects_ = []
+
+  FarmConfig(Map options) {
+    serverConfig = options.serverConfig ?: new ServerConfig()
+    webAppRefs_ = [:]
+    if(options.containsKey('webAppRefs'))
+      webAppRefs_ << (options.webAppRefs as Map)
+    if(options.containsKey('integrationTestProjects'))
+      integrationTestProjects_.addAll(options.integrationTestProjects as Collection)
+    if(options.containsKey('integrationTestProject'))
+      integrationTestProjects_.add(options.integrationTestProject)
+  }
+
+  List getIntegrationTestProjects() {
+    integrationTestProjects_.asImmutable()
+  }
 
   // use serverConfigFile instead
   @Deprecated
@@ -30,10 +44,21 @@ class FarmConfig {
     webAppRefs_.asImmutable()
   }
 
+  void integrationTestProject(Object project) {
+    integrationTestProjects_.add(project)
+  }
+
   // use serverConfigFile instead
   @Deprecated
   void setJettyXmlFile(newValue) {
     serverConfig.setJettyXmlFile(newValue)
+  }
+
+  void setWebAppRefs(Map newValue) {
+    if(!webAppRefs_.is(newValue)) {
+      webAppRefs_.clear()
+      webAppRefs_ << newValue
+    }
   }
 
   void webapp(Map options = [:], w) {

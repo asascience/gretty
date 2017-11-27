@@ -25,7 +25,10 @@ class FarmAfterIntegrationTestTask extends FarmStopTask {
   private String integrationTestTask_
   private boolean integrationTestTaskAssigned
 
-  protected Map webAppRefs = [:]
+  protected final Map webAppRefs = [:]
+
+  // list of projects or project paths
+  protected final List integrationTestProjects = []
 
   @TaskAction
   void action() {
@@ -38,6 +41,14 @@ class FarmAfterIntegrationTestTask extends FarmStopTask {
       project.ext.grettyLauncher = null
     }
     System.out.println 'Server stopped.'
+  }
+
+  Iterable<Project> getIntegrationTestProjects() {
+    FarmConfigurer configurer = new FarmConfigurer(project)
+    Set<Project> result = new LinkedHashSet()
+    result.addAll(getWebAppProjects())
+    result.addAll(configurer.getIntegrationTestProjects(this.integrationTestProjects + configurer.getProjectFarm(farmName).integrationTestProjects))
+    result
   }
 
   String getIntegrationTestTask() {
@@ -58,6 +69,12 @@ class FarmAfterIntegrationTestTask extends FarmStopTask {
     configurer.getWebAppProjects(wrefs)
   }
 
+  void integrationTestProject(Object project) {
+    if(project instanceof Project)
+      project = project.path
+    integrationTestProjects.add(project)
+  }
+
   void integrationTestTask(String integrationTestTask) {
     if(integrationTestTaskAssigned) {
       log.warn '{}.integrationTestTask is already set to "{}", so "{}" is ignored', name, getIntegrationTestTask(), integrationTestTask
@@ -65,7 +82,7 @@ class FarmAfterIntegrationTestTask extends FarmStopTask {
     }
     integrationTestTask_ = integrationTestTask
     def thisTask = this
-    getWebAppProjects().each { proj ->
+    getIntegrationTestProjects().each { proj ->
       proj.tasks.all { t ->
         if(t.name == thisTask.integrationTestTask) {
           thisTask.mustRunAfter t

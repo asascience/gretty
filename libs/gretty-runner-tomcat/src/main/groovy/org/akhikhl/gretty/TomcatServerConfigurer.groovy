@@ -101,6 +101,9 @@ class TomcatServerConfigurer {
       if(!httpConn.port || httpConn.port < 0)
         httpConn.port = params.httpPort ?: ServerDefaults.defaultHttpPort
 
+      if(httpConn.port == PortUtils.RANDOM_FREE_PORT)
+        httpConn.port = PortUtils.findFreePort()
+
       if(params.httpIdleTimeout)
         httpConn.setProperty('keepAliveTimeout', params.httpIdleTimeout.toString())
 
@@ -226,7 +229,7 @@ class TomcatServerConfigurer {
     URLClassLoader classLoader = new URLClassLoader(classpathUrls, parentClassLoader)
     if (webapp.springBoot) {
       Class AppServletInitializer = Class.forName('org.akhikhl.gretty.AppServletInitializer', true, classLoader)
-      AppServletInitializer.springBootMainClass = webapp.springBootMainClass
+      AppServletInitializer.setSpringBootMainClass(webapp.springBootMainClass)
     }
     context.addLifecycleListener(new SpringloadedCleanup())
     context.setParentClassLoader(classLoader)

@@ -90,6 +90,9 @@ class JettyConfigurerImpl implements JettyConfigurer {
       if(!httpConn.port)
         httpConn.port = params.httpPort ?: ServerDefaults.defaultHttpPort
 
+      if(httpConn.port == PortUtils.RANDOM_FREE_PORT)
+        httpConn.port = PortUtils.findFreePort()
+
       if(params.httpIdleTimeout)
         httpConn.idleTimeout = params.httpIdleTimeout
 
@@ -205,6 +208,8 @@ class JettyConfigurerImpl implements JettyConfigurer {
     context.setWebInfLib(webappClassPath.findAll { it.endsWith('.jar') && !isServletApi(it) }.collect { new File(it) })
     context.setExtraClasspath(webappClassPath.collect { it.endsWith('.jar') ? it : (it.endsWith('/') ? it : it + '/') }.findAll { !isServletApi(it) }.join(';'))
     context.setInitParameter('org.eclipse.jetty.servlet.Default.useFileMappedBuffer', serverParams.productMode ? 'true' : 'false')
+    context.setAttribute('org.eclipse.jetty.server.webapp.ContainerIncludeJarPattern',
+            '.*/[^/]*servlet-api-[^/]*\\.jar$|.*/javax.servlet.jsp.jstl-.*\\.jar$|.*/[^/]*taglibs.*\\.jar$');
     FilteringClassLoader classLoader = new FilteringClassLoader(context)
     classLoader.addServerClass('ch.qos.logback.')
     classLoader.addServerClass('org.slf4j.')

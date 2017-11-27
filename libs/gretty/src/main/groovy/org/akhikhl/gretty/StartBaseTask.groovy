@@ -10,11 +10,14 @@ package org.akhikhl.gretty
 
 import org.akhikhl.gretty.scanner.JDKScannerManager
 import org.gradle.api.DefaultTask
+import org.gradle.api.Task
+import org.gradle.api.internal.TaskInternal
+import org.gradle.api.plugins.ExtensionAware
 import org.gradle.api.tasks.TaskAction
+import org.gradle.process.JavaForkOptions
 import org.gradle.testing.jacoco.plugins.JacocoTaskExtension
 import org.springframework.boot.devtools.autoconfigure.OptionalLiveReloadServer
 import org.springframework.boot.devtools.livereload.LiveReloadServer
-
 /**
  * Base task for starting jetty
  *
@@ -27,24 +30,16 @@ abstract class StartBaseTask extends DefaultTask {
   Integer debugPort
   Boolean debugSuspend
 
-  private JacocoHelper jacocoHelper  // May be null.
+  private JacocoHelper jacocoHelper
 
   protected final List<Closure> prepareServerConfigClosures = []
   protected final List<Closure> prepareWebAppConfigClosures = []
 
   Map serverStartInfo
-  
-  public StartBaseTask() {
-    // This task starts a server; it should never be considered UP-TO-DATE.
-    outputs.upToDateWhen { false }
-  
-    // Is the Jacoco plugin applied to the project?
-    // Gretty tasks are created after project evaluation, so we don't have to worry about the Jacoco plugin being
-    // applied after this task. The plugin will either have been applied before or it never will be.
-    if(project.extensions.findByName('jacoco')) {
-      jacocoHelper = new JacocoHelper(this)
-      jacocoHelper.jacoco.enabled = getDefaultJacocoEnabled()
-    }
+
+  StartBaseTask() {
+    initJacoco()
+    getOutputs().upToDateWhen { false }
   }
 
   @TaskAction
@@ -106,7 +101,7 @@ abstract class StartBaseTask extends DefaultTask {
 
     CertificateGenerator.maybeGenerate(project, sconfig)
 
-    if(getJacoco()?.enabled) {  // Will only be true for AppBeforeIntegrationTestTask and FarmBeforeIntegrationTestTask.
+    if(getJacoco()?.enabled) {
       String jacocoConfigJvmArg = getJacoco().getAsJvmArg()
       if(jacocoConfigJvmArg)
         sconfig.jvmArgs jacocoConfigJvmArg
@@ -139,15 +134,28 @@ abstract class StartBaseTask extends DefaultTask {
   protected boolean getIntegrationTest() {
     false
   }
-  
-  /**
-   * Returns the JacocoTaskExtension associated with this task, or {@code null} if the Jacoco plugin hasn't been
-   * applied to the project.
-   *
-   * @return  the JacocoTaskExtension associated with this task, or {@code null}.
-   */
+
   JacocoTaskExtension getJacoco() {
     jacocoHelper?.jacoco
+  }
+
+  private void initJacoco() {
+    if(project.extensions.findByName('jacoco') && project.gretty.jacocoEnabled) {
+      Task startTask = this
+      jacocoHelper = (TaskInternal.methods.collectEntries({ [it.name, {} ] }) +
+          JavaForkOptions.methods.collectEntries({ [it.name, {} ] }) +
+          ExtensionAware.methods.collectEntries({ [it.name, {} ] }) + [
+          getExtensions: { startTask.getExtensions() },
+          getInputs: { startTask.getInputs() },
+          getJacoco: { startTask.extensions.jacoco },
+          getName: { startTask.getName() },
+          getOutputs: { startTask.getOutputs() },
+          getProject: { startTask.project },
+          getWorkingDir: { project.projectDir },
+      ]) as JacocoHelper
+      project.jacoco.applyTo(jacocoHelper)
+      jacocoHelper.jacoco.enabled = getDefaultJacocoEnabled()
+    }
   }
 
   protected final LauncherConfig getLauncherConfig() {

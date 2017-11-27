@@ -17,6 +17,9 @@ import groovy.transform.ToString
 @ToString
 class ServerConfig {
 
+  // attention: this constant must always have the same value as PortUtils.RANDOM_FREE_PORT
+  static final int RANDOM_FREE_PORT = -1
+
   List<String> jvmArgs
   Map<String, String> systemProperties
   String servletContainer
@@ -109,8 +112,14 @@ class ServerConfig {
     serverConfigFile
   }
 
+  // use httpPort instead
+  @Deprecated
   Integer getPort() {
     httpPort
+  }
+
+  int getRandomFreePort() {
+    RANDOM_FREE_PORT
   }
 
   void jvmArg(Object a) {
@@ -159,6 +168,8 @@ class ServerConfig {
     serverConfigFile = newValue
   }
 
+  // use httpPort instead
+  @Deprecated
   void setPort(Integer newValue) {
     httpPort = newValue
   }

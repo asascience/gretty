@@ -46,6 +46,11 @@ class SkipPatternJarScanner extends StandardJarScanner {
 
     return new JarScannerCallback() {
 
+      void scan(Jar jar, String webappPath, boolean isWebapp) throws IOException {
+        log.debug('jarScannerCallback.scan {}, {}, {}', jar, webappPath, isWebapp)
+        callback.scan(jar, webappPath, isWebapp)
+      }
+
       void scan(JarURLConnection urlConn, String webappPath, boolean isWebapp) throws IOException {
         log.debug('jarScannerCallback.scan {}, {}, {}', urlConn, webappPath, isWebapp)
         callback.scan(urlConn, webappPath, isWebapp)
