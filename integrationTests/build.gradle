@@ -7,15 +7,15 @@ buildscript {
     } else
       privateRepoDir = new File(project.projectDir, '../build/privateRepo').canonicalPath
   }
-
-  def parentGradleProps = new Properties()
-  new File(project.projectDir, '../gradle.properties').withInputStream {
-    parentGradleProps.load(it)
+  
+  def topGradleProps = new Properties()
+  new File(projectDir, '../gradle.properties').withInputStream {
+    topGradleProps.load(it)
   }
-  ext.parentGradleProps = parentGradleProps.asImmutable()
-
-  ext.parentGradleProps.each { key, value ->
-    if(key != 'group' && key != 'version' || key != 'rootProjectName')
+  ext.topGradleProps = topGradleProps.asImmutable()
+  
+  topGradleProps.each { key, value ->
+    if(key != 'group' && key != 'version' && key != 'rootProjectName')
       project.ext[key] = value
   }
 
@@ -27,11 +27,11 @@ buildscript {
   }
 
   dependencies {
-    classpath "org.akhikhl.gretty:gretty:${parentGradleProps.version}"
-    classpath "org.akhikhl.gretty.internal.integrationTests:gretty-integrationTest:${parentGradleProps.version}"
+    classpath "${topGradleProps.group}:gretty:${topGradleProps.version}"
+    classpath "${group}:gretty-integrationTest:${topGradleProps.version}"
   }
 }
 
 allprojects {
-  version = rootProject.ext.parentGradleProps.version
+  version = topGradleProps.version
 }

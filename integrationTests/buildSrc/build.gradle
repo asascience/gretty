@@ -30,8 +30,8 @@ parentGradleProps.each { key, value ->
 }
 
 allprojects {
-  group = rootProject.ext.parentGradleProps.group
-  version = rootProject.ext.topGradleProps.version
+  group = parentGradleProps.group
+  version = topGradleProps.version
 }
 
 subprojects {
