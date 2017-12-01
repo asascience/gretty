@@ -12,23 +12,27 @@ cache:
     - $HOME/.gradle/wrapper
 
 before_install:
-  chmod +x gradlew
+  - chmod +x gradlew
 
-before_script:
-  - "export DISPLAY=:99.0"
-  - "sh -e /etc/init.d/xvfb start"
-  - sleep 3 # give xvfb some time to start
+  - export DISPLAY=:99.0
+  - sh -e /etc/init.d/xvfb start
+  - sleep 3    # give xvfb some time to start
+
+  # See http://www.torkwrench.com/2011/12/16/
+  - sudo apt-get update -qq
+  - sudo apt-get install -qq -y dbus
+  - sudo dbus-uuidgen > /var/lib/dbus/machine-id
 
 # There is a 'testAll' task on the root project that essentially performs all of the steps in "install" and "script".
 # However, we can't use it because the root GradleBuild doesn't propagate its properties to the child GradleBuilds
 # that the task spawns, and the integration tests really need "geckoPlatform".
 
-install: ./gradlew --info --stacktrace build
+install: ./gradlew --stacktrace build
 
 script:
   - cd integrationTests/
   # The default value of geckoPlatform is "macos". Obviously that won't work on Travis's Ubuntu VMs.
-  - ./gradlew --info --stacktrace -PgeckoPlatform=linux64 testAll
+  - ./gradlew --stacktrace -PgeckoPlatform=linux64 testAll
 
 env:
   global:
