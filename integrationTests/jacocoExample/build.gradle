@@ -18,7 +18,7 @@ gretty {
   // gretty.afterEvaluate is executed, when standard gretty tasks are already created
   afterEvaluate {
 
-    // "jacoco" extension is created automatically for all JettyBeforeIntegrationTest tasks
+    // "jacoco" extension is created automatically for all AppBeforeIntegrationTest tasks
     // and has type org.gradle.testing.jacoco.plugins.JacocoTaskExtension
     tasks.appBeforeIntegrationTest.jacoco {
       append = false
@@ -61,11 +61,11 @@ task('integrationTestClientReport', type: JacocoReport) {
 
 task('integrationTestServerReport', type: JacocoReport) {
 
-  // executionData must be closure, because jettyBeforeIntegrationTest is not defined yet.
-  // We must pass jacoco.destinationFile, not jettyBeforeIntegrationTest itself,
+  // executionData must be closure, because appBeforeIntegrationTest is not defined yet.
+  // We must pass jacoco.destinationFile, not appBeforeIntegrationTest itself,
   // because otherwise JacocoReport would translate task argument to closure and project.files
   // (which is used internally by executionData) is not able to resolve recursive closures.
-  executionData { tasks.jettyBeforeIntegrationTest.jacoco.destinationFile }
+  executionData { tasks.appBeforeIntegrationTest.jacoco.destinationFile }
 
   sourceDirectories = project.files(project.sourceSets.main.allSource.srcDirs)
   classDirectories = project.sourceSets.main.output

@@ -501,11 +501,7 @@ class GrettyPlugin implements Plugin<Project> {
       project.task('tomcatRestart', type: AppRestartTask, group: 'gretty') {
         description = 'Sends \'restart\' command to a running server.'
       }
-
-      project.ext.jettyBeforeIntegrationTest = project.tasks.ext.jettyBeforeIntegrationTest = project.tasks.appBeforeIntegrationTest
-
-      project.ext.jettyAfterIntegrationTest = project.tasks.ext.jettyAfterIntegrationTest = project.tasks.appAfterIntegrationTest
-
+      
       project.task('showClassPath', group: 'gretty') {
         description = 'Shows classpath information'
         doLast {

@@ -33,7 +33,7 @@ task('myIntegrationTest', type: Test, dependsOn: 'test') {
   }
 }
 
-task('myBeforeIntegrationTest', type: JettyBeforeIntegrationTestTask) {
+task('myBeforeIntegrationTest', type: AppBeforeIntegrationTestTask) {
 
   integrationTestTask 'myIntegrationTest'
 
@@ -43,7 +43,7 @@ task('myBeforeIntegrationTest', type: JettyBeforeIntegrationTestTask) {
   }
 }
 
-task('myAfterIntegrationTest', type: JettyAfterIntegrationTestTask) {
+task('myAfterIntegrationTest', type: AppAfterIntegrationTestTask) {
 
   finalizedBy { tasks.integrationTestServerReport }
 
