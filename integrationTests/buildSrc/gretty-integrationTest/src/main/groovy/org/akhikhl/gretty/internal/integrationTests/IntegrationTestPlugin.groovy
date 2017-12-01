@@ -111,8 +111,16 @@ class IntegrationTestPlugin extends BasePlugin {
   @Override
   protected void configureRootProjectProperties(Project project) {
     super.configureRootProjectProperties(project)
+    
+    // This will be one of: [ arm7hf, linux32, linux64, macos, win32, win64 ].
+    // See https://github.com/mozilla/geckodriver/releases
+    if (!project.hasProperty('geckoPlatform')) {
+      // Set a default when the user doesn't provide a value. This is the platform of my dev machine.
+      project.ext.geckoPlatform = "macos"
+    }
+    
     if(!project.hasProperty('geckoDriverArchiveFileName'))
-      project.ext.geckoDriverArchiveFileName = "geckodriver-v${project.geckoDriverVersion}-macos.tar.gz"
+      project.ext.geckoDriverArchiveFileName = "geckodriver-v${project.geckoDriverVersion}-${project.geckoPlatform}.tar.gz"
     if(!project.hasProperty('geckoDriverDownloadUrl'))
       project.ext.geckoDriverDownloadUrl = "https://github.com/mozilla/geckodriver/releases/download/v${project.geckoDriverVersion}/${project.geckoDriverArchiveFileName}"
   }
