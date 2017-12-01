@@ -8,7 +8,6 @@
  */
 package org.akhikhl.examples.gretty.websocket
 
-import geb.Browser
 import geb.spock.GebReportingSpec
 
 class RequestResponseIT extends GebReportingSpec {
@@ -35,7 +34,7 @@ class RequestResponseIT extends GebReportingSpec {
     String url = "http://${host}:${port}${contextPath}/index.html"
     go url
     def otherBrowser
-    withNewWindow({ $('#openNewChat').click() }, close: false) {
+    withNewWindow({ $('#openNewChat').click() }, close: false, wait: true) {
       $('#username').value('a')
       $('#message').value('xxx')
       $('#btnSend').click()
