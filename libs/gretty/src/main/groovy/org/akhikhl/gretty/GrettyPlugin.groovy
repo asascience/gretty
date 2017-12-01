@@ -756,6 +756,7 @@ class GrettyPlugin implements Plugin<Project> {
     }
 
     project.ext {
+      grettyGroup = Externalized.getString('grettyGroup')
       grettyVersion = Externalized.getString('grettyVersion')
       if(!has('jetty7Version'))
         jetty7Version = Externalized.getString('jetty7Version')
