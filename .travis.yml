@@ -21,7 +21,7 @@ before_install:
   # See http://www.torkwrench.com/2011/12/16/
   - sudo apt-get update -qq
   - sudo apt-get install -qq -y dbus
-  - sudo dbus-uuidgen > /var/lib/dbus/machine-id
+  - sudo dbus-uuidgen --ensure
 
 # There is a 'testAll' task on the root project that essentially performs all of the steps in "install" and "script".
 # However, we can't use it because the root GradleBuild doesn't propagate its properties to the child GradleBuilds
