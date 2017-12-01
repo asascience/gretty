@@ -56,12 +56,6 @@ class SkipPatternJarScanner extends StandardJarScanner {
         callback.scan(urlConn, webappPath, isWebapp)
       }
   
-      @Override
-      void scan(Jar jar, String webappPath, boolean isWebapp) throws IOException {
-        log.debug('jarScannerCallback.scan {}, {}, {}', jar, webappPath, isWebapp)
-        callback.scan(jar, webappPath, isWebapp)
-      }
-  
       void scan(File file, String webappPath, boolean isWebapp) throws IOException {
         log.debug('jarScannerCallback.scan {}, {}, {}', file, webappPath, isWebapp)
         callback.scan(file, webappPath, isWebapp)
