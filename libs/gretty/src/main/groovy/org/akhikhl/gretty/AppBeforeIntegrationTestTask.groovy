@@ -8,11 +8,13 @@
  */
 package org.akhikhl.gretty
 
+import org.gradle.api.Task
 import org.gradle.api.internal.changedetection.TaskArtifactState
 import org.gradle.api.internal.changedetection.TaskArtifactStateRepository
 import org.gradle.process.JavaForkOptions
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
+
 /**
  *
  * @author akhikhl
@@ -59,9 +61,10 @@ class AppBeforeIntegrationTestTask extends AppStartTask {
     }
     integrationTestTask_ = integrationTestTask
     def thisTask = this
-    project.tasks.all { task ->
+    project.tasks.all { Task task ->
       if(task.name == thisTask.integrationTestTask) {
         task.dependsOn thisTask
+        
         thisTask.dependsOn { project.tasks.prepareInplaceWebApp }
         thisTask.dependsOn { project.tasks.testClasses }
         if(task.name != 'test' && project.tasks.findByName('test'))
@@ -93,7 +96,7 @@ class AppBeforeIntegrationTestTask extends AppStartTask {
         // (e.g. one of its onlyIf()s returns false), but those situations are rare.
         thisTask.onlyIf {
           if (!task.enabled) {
-            return false;
+            return false
           }
     
           TaskArtifactState state = task.services.get(TaskArtifactStateRepository).getStateFor(task)

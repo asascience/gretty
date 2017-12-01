@@ -83,20 +83,25 @@ class FarmAfterIntegrationTestTask extends FarmStopTask {
     integrationTestTask_ = integrationTestTask
     def thisTask = this
     getIntegrationTestProjects().each { proj ->
-      proj.tasks.all { t ->
-        if(t.name == thisTask.integrationTestTask) {
-          thisTask.mustRunAfter t
+      proj.tasks.all { Task task ->
+        if(task.name == thisTask.integrationTestTask) {
+          thisTask.mustRunAfter task
   
+          // In FarmBeforeIntegrationTestTask.integrationTestTask(String), we set the integrationTestTask to run after
+          // an instance of FarmBeforeIntegrationTestTask. Here we grab those instances.
           Closure instanceOfFarmBeforeIntegTest = { GradleUtils.instanceOf(it, FarmBeforeIntegrationTestTask.name) }
-          Set<Task> farmBeforeIntegTasks = t.dependsOn.findAll(instanceOfFarmBeforeIntegTest)
+          Set<Task> farmBeforeIntegTasks = task.mustRunAfter.values.findAll(instanceOfFarmBeforeIntegTest)
+  
+          assert farmBeforeIntegTasks.size() > 0 :
+                  "'${thisTask.integrationTestTask}' was not associated with any FarmBeforeIntegrationTestTasks."
   
           // We only need to run this task if one of the associated FarmBeforeIntegrationTestTasks did work.
           thisTask.onlyIf {
             farmBeforeIntegTasks.any { it.didWork }
           }
-        } else if(GradleUtils.instanceOf(t, 'org.akhikhl.gretty.AppAfterIntegrationTestTask') &&
-                  t.integrationTestTask == thisTask.integrationTestTask) {
-          thisTask.mustRunAfter t
+        } else if(GradleUtils.instanceOf(task, 'org.akhikhl.gretty.AppAfterIntegrationTestTask') &&
+                  task.integrationTestTask == thisTask.integrationTestTask) {
+          thisTask.mustRunAfter task
         }
       }
     }

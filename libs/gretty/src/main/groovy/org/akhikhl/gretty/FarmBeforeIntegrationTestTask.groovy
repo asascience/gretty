@@ -108,7 +108,10 @@ class FarmBeforeIntegrationTestTask extends FarmStartTask {
       proj.tasks.all { Task task ->
         if(getIntegrationTestProjects().contains(task.project)) {
           if (task.name == thisTask.integrationTestTask) {
+            // Add an ordering but not a dependency. It would be inappropriate for integrationTestTask to depend on
+            // FarmBeforeIntegrationTestTask because integrationTestTask may not even be part of a farm.
             task.mustRunAfter thisTask
+            
             thisTask.mustRunAfter proj.tasks.testClasses
             if (task.name != 'test' && project.tasks.findByName('test'))
               thisTask.mustRunAfter project.tasks.test
@@ -116,7 +119,7 @@ class FarmBeforeIntegrationTestTask extends FarmStartTask {
             if (GradleUtils.instanceOf(task, 'org.gradle.process.JavaForkOptions')) {
               task.doFirst {
                 if (thisTask.didWork) {
-                  passSystemPropertiesToIntegrationTestTask(t, task)
+                  passSystemPropertiesToIntegrationTask(task)
                 }
               }
               task.doLast {
@@ -130,7 +133,7 @@ class FarmBeforeIntegrationTestTask extends FarmStartTask {
             // See second note in AppBeforeIntegrationTestTask.integrationTestTask().
             thisTask.onlyIf {
               if (!task.enabled) {
-                return false;
+                return false
               }
     
               TaskArtifactState state = task.services.get(TaskArtifactStateRepository).getStateFor(task)
@@ -144,30 +147,31 @@ class FarmBeforeIntegrationTestTask extends FarmStartTask {
     }
     integrationTestTaskAssigned = true
   }
-
-  protected void passSystemPropertiesToIntegrationTestTask(Task integrationTestTask, JavaForkOptions javaForkOptions) {
-
+  
+  // serverStartInfo gets populated in this task's action() method.
+  // Therefore, we can't call this method until this task has run.
+  protected void passSystemPropertiesToIntegrationTask(JavaForkOptions task) {
     def host = serverStartInfo.host
-
-    javaForkOptions.systemProperty 'gretty.host', host
-
-    String contextPath
-    if(integrationTestTask.ext.has('contextPath') && integrationTestTask.ext.contextPath != null) {
-      contextPath = integrationTestTask.ext.contextPath
+  
+    task.systemProperty 'gretty.host', host
+  
+    def contextPath
+    if(task.hasProperty('contextPath') && task.contextPath != null) {
+      contextPath = task.contextPath
       if(!contextPath.startsWith('/'))
         contextPath = '/' + contextPath
     }
     else {
       Iterable<WebAppConfig> webAppConfigs = getStartConfig().getWebAppConfigs()
       if(webAppConfigs) {
-        WebAppConfig webAppConfig = webAppConfigs.find { it.projectPath == integrationTestTask.project.path }
+        WebAppConfig webAppConfig = webAppConfigs.find { it.projectPath == task.project.path }
         if (webAppConfig == null)
           webAppConfig = webAppConfigs.first()
         contextPath = webAppConfig.contextPath
       }
     }
-
-    javaForkOptions.systemProperty 'gretty.contextPath', contextPath
+  
+    task.systemProperty 'gretty.contextPath', contextPath
 
     String preferredProtocol
     String preferredBaseURI
@@ -175,11 +179,11 @@ class FarmBeforeIntegrationTestTask extends FarmStartTask {
     def httpPort = serverStartInfo.httpPort
     String httpBaseURI
     if(httpPort) {
-      javaForkOptions.systemProperty 'gretty.port', httpPort
-      javaForkOptions.systemProperty 'gretty.httpPort', httpPort
+      task.systemProperty 'gretty.port', httpPort
+      task.systemProperty 'gretty.httpPort', httpPort
       httpBaseURI = "http://${host}:${httpPort}${contextPath}"
-      javaForkOptions.systemProperty 'gretty.baseURI', httpBaseURI
-      javaForkOptions.systemProperty 'gretty.httpBaseURI', httpBaseURI
+      task.systemProperty 'gretty.baseURI', httpBaseURI
+      task.systemProperty 'gretty.httpBaseURI', httpBaseURI
       preferredProtocol = 'http'
       preferredBaseURI = httpBaseURI
     }
@@ -187,18 +191,18 @@ class FarmBeforeIntegrationTestTask extends FarmStartTask {
     def httpsPort = serverStartInfo.httpsPort
     String httpsBaseURI
     if(httpsPort) {
-      javaForkOptions.systemProperty 'gretty.httpsPort', httpsPort
+      task.systemProperty 'gretty.httpsPort', httpsPort
       httpsBaseURI = "https://${host}:${httpsPort}${contextPath}"
-      javaForkOptions.systemProperty 'gretty.httpsBaseURI', httpsBaseURI
+      task.systemProperty 'gretty.httpsBaseURI', httpsBaseURI
       preferredProtocol = 'https'
       preferredBaseURI = httpsBaseURI
     }
 
     if(preferredProtocol)
-      javaForkOptions.systemProperty 'gretty.preferredProtocol', preferredProtocol
+      task.systemProperty 'gretty.preferredProtocol', preferredProtocol
     if(preferredBaseURI)
-      javaForkOptions.systemProperty 'gretty.preferredBaseURI', preferredBaseURI
-
-    javaForkOptions.systemProperty 'gretty.farm', (farmName ?: 'default')
+      task.systemProperty 'gretty.preferredBaseURI', preferredBaseURI
+  
+    task.systemProperty 'gretty.farm', (farmName ?: 'default')
   }
 }

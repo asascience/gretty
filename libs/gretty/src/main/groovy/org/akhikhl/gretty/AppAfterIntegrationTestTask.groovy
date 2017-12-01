@@ -54,16 +54,21 @@ class AppAfterIntegrationTestTask extends AppStopTask {
     integrationTestTask_ = integrationTestTask
     def thisTask = this
     
-    project.tasks.all { t ->
-      if(t.name == thisTask.integrationTestTask){
-        t.finalizedBy thisTask
+    project.tasks.all { Task task ->
+      if(task.name == thisTask.integrationTestTask){
+        task.finalizedBy thisTask
         
+        // In AppBeforeIntegrationTestTask.integrationTestTask(String), we set the integrationTestTask to depend on
+        // an instance of AppBeforeIntegrationTestTask. Here we grab that instance.
         Closure instanceOfAppBeforeIntegTest = { GradleUtils.instanceOf(it, AppBeforeIntegrationTestTask.name) }
-        Set<Task> appBeforeIntegTasks = t.dependsOn.findAll(instanceOfAppBeforeIntegTest)
+        Set<Task> appBeforeIntegTasks = task.dependsOn.findAll(instanceOfAppBeforeIntegTest)
         
-        // We only need to run this task if one of the associated AppBeforeIntegrationTestTasks did work.
+        assert appBeforeIntegTasks.size() == 1 : "'${thisTask.integrationTestTask}' ought to be associated with " +
+            "exactly one AppBeforeIntegrationTestTask, but instead it was associated with: $appBeforeIntegTasks"
+        
+        // We only need to run this task if the associated AppBeforeIntegrationTestTask did work.
         thisTask.onlyIf {
-          appBeforeIntegTasks.any { it.didWork }
+          appBeforeIntegTasks.first().didWork
         }
       }
     }
