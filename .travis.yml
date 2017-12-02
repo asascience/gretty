@@ -32,11 +32,10 @@ before_install:
 install: ./gradlew --stacktrace build
 
 # The default value of geckoPlatform is "macos". Obviously that won't work on Travis's Ubuntu VMs.
-script: integrationTests/gradlew --project-dir=integrationTests --stacktrace -PgeckoPlatform=linux64 build  # TEMP !!
+script: integrationTests/gradlew --project-dir=integrationTests --stacktrace -PgeckoPlatform=linux64 testAll
 
 env:
   global:
-    - JAVA_OPTS="-XX:PermSize=512M -XX:MaxPermSize=1G"
     # This is the value of my BINTRAY_KEY, encrypted.
     - secure: "pC+rLP05t/uyh0fqkty0RhX7FyPYIDFucZdMR8H9+j0l0FgsACA3epbUzCUkh3mvOM63oLQpqRcRkW1jmRjNiaAKgB2cpC1g0zKxLV9GTKUi2IK6n90f4GcNy14egkUb6Ko3AGOUtKJK/3BhZv+GEP3NmqEewTnWGCStPe9aEtzgGbeQjFNZb1b0qGKu7f69Co4loIKzzdpMAjt2/TmVHeFpRIr0Waz1+MrSDbsc8mszplIkG7u7ANCSLqfKhMwlVwHCrYUejExUOj/aqxfhPsuQ3qR+dm8XATQtyIJ825SmJIjDiq3hRDuaL/Pg4EQitB7aFSisKthdy1Mm9RpApMq7iFiicXRnv2tCw6U3JIj7D7L0GADkSRvoKqBcKYfdqXO/cTMUbYWOrVDVPP8LLCFj8qkdnPZ/2ATkeORyrS6/Y56v4qOVvFesjbw2/bv9La4a1MpYvRSx2d3otuJT1Q3rbbRexRz+mOQqFTnfPYOFDeYKYRsY848eWTGLJmMd487NG3fdHrfVWack5rt7NzW7ldJGg4IjPGojmvXaHMPKkLZ6/4WWpvMvxYCy+jzCMwvIRjDZh7fZK7nDiNYxPdfFiap57Pje0QURfixImg/eJU4x1rnXfQ3e/EKvaOr/42dsbf/mVEwxJBY2flZ2LHBk/HLYJXwACuZLNMkiMr4="
 
