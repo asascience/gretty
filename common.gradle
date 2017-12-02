@@ -17,11 +17,6 @@ repositories {
 group = rootProject.group
 version = rootProject.version
 
-configurations {
-  providedCompile
-  compile.extendsFrom providedCompile
-}
-
 afterEvaluate {
 
 dependencies {

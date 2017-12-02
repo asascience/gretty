@@ -63,7 +63,7 @@ class ServletContainerConfig {
         servletApiVersion: { project -> project.ext.jetty7ServletApiVersion },
         servletApiDependencies: { project ->
           project.dependencies {
-            grettyProvidedCompile "javax.servlet:servlet-api:$project.ext.jetty7ServletApiVersion"
+            grettyCompileOnly "javax.servlet:servlet-api:$project.ext.jetty7ServletApiVersion"
           }
         }
       ],
@@ -91,7 +91,7 @@ class ServletContainerConfig {
         servletApiVersion: { project -> project.ext.jetty8ServletApiVersion },
         servletApiDependencies: { project ->
           project.dependencies {
-            grettyProvidedCompile "javax.servlet:javax.servlet-api:${project.ext.jetty8ServletApiVersion}"
+            grettyCompileOnly "javax.servlet:javax.servlet-api:${project.ext.jetty8ServletApiVersion}"
           }
         }
       ],
@@ -123,8 +123,8 @@ class ServletContainerConfig {
         servletApiVersion: { project -> project.ext.jetty9ServletApiVersion },
         servletApiDependencies: { project ->
           project.dependencies {
-            grettyProvidedCompile "javax.servlet:javax.servlet-api:${project.ext.jetty9ServletApiVersion}"
-            grettyProvidedCompile 'javax.websocket:javax.websocket-api:1.0'
+            grettyCompileOnly "javax.servlet:javax.servlet-api:${project.ext.jetty9ServletApiVersion}"
+            grettyCompileOnly 'javax.websocket:javax.websocket-api:1.0'
           }
         }
       ],
@@ -150,7 +150,7 @@ class ServletContainerConfig {
         servletApiVersion: { project -> project.ext.tomcat7ServletApiVersion },
         servletApiDependencies: { project ->
           project.dependencies {
-            grettyProvidedCompile "javax.servlet:javax.servlet-api:${project.ext.tomcat7ServletApiVersion}"
+            grettyCompileOnly "javax.servlet:javax.servlet-api:${project.ext.tomcat7ServletApiVersion}"
           }
         }
       ],
@@ -179,7 +179,7 @@ class ServletContainerConfig {
         servletApiVersion: { project -> project.ext.tomcat8ServletApiVersion },
         servletApiDependencies: { project ->
           project.dependencies {
-            grettyProvidedCompile "javax.servlet:javax.servlet-api:${project.ext.tomcat8ServletApiVersion}"
+            grettyCompileOnly "javax.servlet:javax.servlet-api:${project.ext.tomcat8ServletApiVersion}"
           }
         }
       ]
@@ -213,8 +213,8 @@ class ServletContainerConfig {
         servletApiVersion: { project -> project.ext.jetty9ServletApiVersion },
         servletApiDependencies: { project ->
           project.dependencies {
-            grettyProvidedCompile "javax.servlet:javax.servlet-api:${project.ext.jetty9ServletApiVersion}"
-            grettyProvidedCompile 'javax.websocket:javax.websocket-api:1.0'
+            grettyCompileOnly "javax.servlet:javax.servlet-api:${project.ext.jetty9ServletApiVersion}"
+            grettyCompileOnly 'javax.websocket:javax.websocket-api:1.0'
           }
         }
       ]
@@ -246,8 +246,8 @@ class ServletContainerConfig {
           servletApiVersion: { project -> project.ext.jetty9ServletApiVersion },
           servletApiDependencies: { project ->
             project.dependencies {
-              grettyProvidedCompile "javax.servlet:javax.servlet-api:${project.ext.jetty9ServletApiVersion}"
-              grettyProvidedCompile 'javax.websocket:javax.websocket-api:1.0'
+              grettyCompileOnly "javax.servlet:javax.servlet-api:${project.ext.jetty9ServletApiVersion}"
+              grettyCompileOnly 'javax.websocket:javax.websocket-api:1.0'
             }
           }
       ]

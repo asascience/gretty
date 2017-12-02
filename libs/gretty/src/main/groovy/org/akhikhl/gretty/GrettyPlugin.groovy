@@ -48,7 +48,7 @@ class GrettyPlugin implements Plugin<Project> {
         transitive = false
       }
       grettyProductRuntime
-      grettyProvidedCompile
+      grettyCompileOnly
       grettyOverlays
     }
 
@@ -69,10 +69,10 @@ class GrettyPlugin implements Plugin<Project> {
           extendsFrom runtimeConfig
       }
     }
-    // need to configure providedCompile, so that war excludes grettyProvidedCompile artifacts
-    def providedCompile = project.configurations.findByName('providedCompile')
-    if(providedCompile)
-      providedCompile.extendsFrom project.configurations.grettyProvidedCompile
+
+    def compileOnlyConfig = project.configurations.findByName('compileOnly')
+    if(compileOnlyConfig)
+      compileOnlyConfig.extendsFrom project.configurations.grettyCompileOnly
   }
 
   private void addDependencies(Project project) {

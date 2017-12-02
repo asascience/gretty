@@ -88,9 +88,6 @@ final class ProjectUtils {
     def dependencyConfig = proj.configurations.findByName(dependencyConfigName)
     if(dependencyConfig) {
       def files = dependencyConfig.fileCollection { true }
-      def grettyProvidedCompileConfig = proj.configurations.findByName('grettyProvidedCompile')
-      if(grettyProvidedCompileConfig)
-        files = files - grettyProvidedCompileConfig
       urls.addAll(files.collect { it.toURI().toURL() })
     }
   }
@@ -102,9 +99,6 @@ final class ProjectUtils {
       addProjectClassPath = { Project proj ->
         urls.addAll(project.tasks.jar.archivePath.toURI().toURL())
         def files = proj.configurations[dependencyConfig]
-        def grettyProvidedCompileConfig = proj.configurations.findByName('grettyProvidedCompile')
-        if(grettyProvidedCompileConfig)
-          files = files - grettyProvidedCompileConfig
         urls.addAll(files.files.collect { it.toURI().toURL() })
         // ATTENTION: order of overlay classpath is important!
         if(proj.extensions.findByName('gretty'))
