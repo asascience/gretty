@@ -31,10 +31,8 @@ before_install:
 
 install: ./gradlew --stacktrace build
 
-script:
-  - cd integrationTests/
-  # The default value of geckoPlatform is "macos". Obviously that won't work on Travis's Ubuntu VMs.
-  - ./gradlew --stacktrace -PgeckoPlatform=linux64 testAll
+# The default value of geckoPlatform is "macos". Obviously that won't work on Travis's Ubuntu VMs.
+script: integrationTests/gradlew --project-dir=integrationTests --stacktrace -PgeckoPlatform=linux64 build  # TEMP !!
 
 env:
   global:
