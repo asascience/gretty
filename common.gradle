@@ -4,14 +4,12 @@
 apply plugin: 'groovy'
 apply plugin: 'maven'
 apply plugin: 'maven-publish'
-apply plugin: 'com.jfrog.artifactory'
-apply plugin: 'com.jfrog.bintray'
 
 repositories {
   maven {
     url "file:$privateRepoDir"
   }
-  jcenter()
+  mavenCentral()
 }
 
 group = rootProject.group
@@ -111,35 +109,26 @@ project.tasks.build.dependsOn project.tasks.publishToPrivateRepository
 rootProject.tasks.buildIntegrationTests.dependsOn project.tasks.publishToPrivateRepository
 rootProject.tasks.testAllIntegrationTests.dependsOn project.tasks.publishToPrivateRepository
 
-tasks.artifactoryPublish {
-  dependsOn { project.tasks.generatePomFileForMavenJavaPublication }
-  publications 'mavenJava'
-}
+//  pkg {
+//    repo = 'maven'
+//    name = "${thisProject.projectId}-fork"
+//    desc = thisProject.description
+//    licenses = [ 'MIT' ]
+//    vcsUrl = thisProject.vcs_url
+//    labels = thisProject.projectLabels.split(',')
+//  }
 
-bintray {
-  user = project.bintrayUser
-  key = project.bintrayKey
-  configurations = ['archives']
-  publications = ['mavenJava']
-  
-  pkg {
-    repo = 'maven'
-    name = "${thisProject.projectId}-fork"
-    desc = thisProject.description
-    licenses = [ 'MIT' ]
-    vcsUrl = thisProject.vcs_url
-    labels = thisProject.projectLabels.split(',')
-  }
-  
-  dryRun = thisProject.bintrayDryRun
-  publish = true
-}
-
-tasks.bintrayUpload.dependsOn assemble
-
-if(!bintrayDryRun) {
-  tasks.bintrayUpload.finalizedBy rootProject.tasks.bintraySign
-  rootProject.tasks.bintraySign.onlyIf { !tasks.bintrayUpload.getState().getFailure() }
-}
+//  dryRun = thisProject.bintrayDryRun
+//  publish = true
 
 } // afterEvaluate
+
+publishing {
+  repositories {
+    maven {
+      name = 'unidata-3rdparty-releases'
+      url = 'https://artifacts.unidata.ucar.edu/repository/unidata-3rdparty/'
+      // Set credentials in taskGraph.whenReady {}
+    }
+  }
+}
